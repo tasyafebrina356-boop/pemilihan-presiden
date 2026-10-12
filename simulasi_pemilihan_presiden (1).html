@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulasi Pemilihan Presiden</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f3f7fc;color:#17365d}
+header{background:#163f69;color:white;padding:20px 5%;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+header h1{font-size:25px;margin:0}nav a{color:white;text-decoration:none;margin-left:22px}
+main{max-width:1200px;margin:auto;padding:28px 22px}
+.hero{text-align:center;padding:28px 18px;background:#e5f1ff;border-radius:12px;margin-bottom:24px}
+.hero h2{font-size:30px;margin:0 0 12px}.hero p{margin:0;color:#456585;line-height:1.6}
+.columns{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.panel{background:white;border:1px solid #dce7f4;border-radius:12px;padding:24px;box-shadow:0 4px 16px #17365d0a}
+h3{margin:0 0 20px;font-size:22px}
+.candidate{display:flex;align-items:center;gap:14px;padding:18px;margin-bottom:12px;border-radius:9px;border:2px solid transparent;cursor:pointer}
+.candidate:nth-of-type(2){background:#e8f3ff}.candidate:nth-of-type(3){background:#e8f7ef}.candidate:nth-of-type(4){background:#fff0f0}
+.candidate:has(input:checked){border-color:#1767bd}
+.candidate input{width:18px;height:18px;flex-shrink:0}
+.avatar{width:50px;height:50px;border-radius:50%;display:grid;place-items:center;background:#d2e3f7;font-size:25px}
+.candidate strong{display:block;margin-bottom:6px}.candidate small{color:#456585}
+button{border:0;border-radius:8px;background:#1767bd;color:white;padding:14px 18px;font-size:16px;font-weight:bold;cursor:pointer;width:100%;margin-top:8px}
+button:hover{background:#10569f}.message{margin-top:12px;min-height:20px;color:#a13b32}
+.result{margin-bottom:24px}.result-head{display:flex;justify-content:space-between;gap:12px;margin-bottom:9px}
+.track{height:12px;border-radius:10px;background:#e7edf5;overflow:hidden}.fill{height:100%;width:0;background:#1767bd;transition:width .3s}
+.winner{background:#e5f1ff;border-radius:9px;padding:18px;margin-top:26px}.winner strong{font-size:18px}
+.note{color:#637d9b;font-size:13px;line-height:1.5;margin-top:18px}
+footer{text-align:center;padding:24px;color:#637d9b;background:#eaf1f9;margin-top:28px}
+@media(max-width:760px){.columns{grid-template-columns:1fr}.hero h2{font-size:24px}.panel{padding:18px}header h1{font-size:21px}}
+</style>
+</head>
+<body>
+<header><h1>🗳️ Simulasi Pemilihan Presiden</h1><nav><a href="#beranda">Beranda</a><a href="#hasil">Hasil Suara</a></nav></header>
+<main id="beranda">
+<section class="hero"><h2>Simulasi Pemilihan Presiden</h2><p>Pilih satu kandidat, lalu lihat hasil penghitungan suara secara langsung.<br><b>Website ini hanya simulasi pembelajaran, bukan pemilu resmi.</b></p></section>
+<div class="columns">
+<section class="panel">
+<h3>☑ Pilih Kandidat</h3>
+<form id="voteForm">
+<label class="candidate"><input type="radio" name="candidate" value="0" required><span class="avatar">👨🏻‍💼</span><span><strong>1. Calon Presiden A</strong><small>Bersama membangun Indonesia maju</small></span></label>
+<label class="candidate"><input type="radio" name="candidate" value="1" required><span class="avatar">👨🏽‍💼</span><span><strong>2. Calon Presiden B</strong><small>Untuk Indonesia yang lebih baik</small></span></label>
+<label class="candidate"><input type="radio" name="candidate" value="2" required><span class="avatar">👩🏻‍💼</span><span><strong>3. Calon Presiden C</strong><small>Indonesia sejahtera untuk semua</small></span></label>
+<button type="submit">Kirim Suara</button>
+<div class="message" id="message" role="status"></div>
+</form>
+</section>
+<section class="panel" id="hasil">
+<h3>▥ Hasil Suara</h3>
+<div id="results"></div>
+<div class="winner"><strong>🏆 Pemenang (simulasi)</strong><p id="winner" style="margin-bottom:0">Belum ada suara</p></div>
+<p class="note">Catatan: suara hanya tersimpan sementara di halaman ini dan akan kembali nol saat halaman dimuat ulang. Ini bukan sistem pemungutan suara resmi.</p>
+</section>
+</div>
+</main>
+<footer>© 2026 Simulasi Pemilihan Presiden — Proyek pembelajaran C# / pemrograman</footer>
+<script>
+const names=["Calon Presiden A","Calon Presiden B","Calon Presiden C"];
+const votes=[0,0,0];
+const results=document.getElementById("results");
+function render(){
+ const total=votes.reduce((a,b)=>a+b,0);
+ results.innerHTML=names.map((name,i)=>`<div class="result"><div class="result-head"><strong>${name}</strong><span>${votes[i]} suara</span></div><div class="track"><div class="fill" style="width:${total?votes[i]/total*100:0}%"></div></div><div style="text-align:right;font-size:13px;margin-top:5px">${total?(votes[i]/total*100).toFixed(0):0}%</div></div>`).join("");
+ if(total===0){document.getElementById("winner").textContent="Belum ada suara";return}
+ const max=Math.max(...votes), winners=names.filter((_,i)=>votes[i]===max);
+ document.getElementById("winner").textContent=winners.length>1?"Hasil sementara seri: "+winners.join(", "):winners[0]+" ("+max+" suara)";
+}
+document.getElementById("voteForm").addEventListener("submit",function(e){
+ e.preventDefault();
+ const chosen=document.querySelector('input[name="candidate"]:checked');
+ if(!chosen)return;
+ votes[Number(chosen.value)]++;
+ document.getElementById("message").textContent="Suara simulasi berhasil ditambahkan.";
+ this.reset();render();
+});
+render();
+</script>
+</body>
+</html>
